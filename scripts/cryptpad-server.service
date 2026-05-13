@@ -1,0 +1,24 @@
+[Unit]
+Description=CryptPad Server (Parsec-compatible)
+Documentation=https://github.com/Scille/cryptpad-server
+After=network.target
+
+[Service]
+Type=simple
+User=cryptpad
+Group=cryptpad
+WorkingDirectory=/opt/cryptpad-server
+EnvironmentFile=/opt/cryptpad-server/.env
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=cryptpad
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,106 @@
+name: Build & Publish docker cryptpad
+
+# cspell:words buildx
+
+on:
+  # This job must be manually triggered to publish a new version usable from
+  # other CI runs.
+  workflow_dispatch:
+  pull_request:
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  docker-testbed:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin v5.0.0
+        timeout-minutes: 5
+
+      # Set up BuildKit Docker container builder to be able to build
+      # multi-platform images and export cache
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
+
+      - name: Log in to the Github Container registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get current version
+        id: version
+        shell: bash
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+        timeout-minutes: 1
+
+      - name: Generate build metadata
+        uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
+        id: metadata
+        with:
+          images:
+            ghcr.io/scille/cryptpad-server/cryptpad
+          labels: |
+            org.opencontainers.image.title=Cryptpad container
+            org.opencontainers.image.version=${{ steps.version.outputs.sha }}
+          annotations: |
+            manifest:org.opencontainers.image.title=Cryptpad container
+            manifest:org.opencontainers.image.version=${{ steps.version.outputs.sha }}
+          tags: |
+            type=raw,value=${{ steps.version.outputs.sha }}
+          flavor: |
+            latest=${{ github.event_name == 'workflow_dispatch' }}
+
+      - name: Build and export to Docker
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        id: build
+        with:
+          context: .
+          file: Dockerfile
+          load: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          push: false
+        timeout-minutes: 20
+
+      - name: Start docker test container
+        id: start-test-container
+        shell: bash
+        run: |
+          (
+            echo -n "id=";
+            docker run --detach --publish 3000:3000 --name=cryptpad ${{ steps.build.outputs.imageid }}
+          ) | tee $GITHUB_OUTPUT
+        timeout-minutes: 1
+
+      - name: Test docker image
+        id: test-container
+        run: curl -f --retry-all-errors --retry 10 --retry-delay 2 --max-time 2 http://127.0.0.1:3000
+        timeout-minutes: 1
+
+      - name: Show container logs
+        if: failure()
+        run: docker ps -a && docker logs cryptpad
+
+      - name: Stop docker test container
+        if: always()
+        run: docker stop cryptpad
+        timeout-minutes: 1
+
+      - name: Image to be published
+        run: echo "${{ steps.metadata.outputs.tags }}"
+
+      - name: Build and publish
+        if: github.event_name == 'workflow_dispatch'
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
+        with:
+          context: .
+          file: Dockerfile
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          push: true
+        timeout-minutes: 5

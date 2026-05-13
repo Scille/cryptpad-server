@@ -1,0 +1,13 @@
+{
+  "name": "cryptpad-server",
+  "engines": {
+    "node": "22"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "start": "cd cryptpad && npm run start",
+    "dev": "bash scripts/dev_start.sh"
+  }
+}

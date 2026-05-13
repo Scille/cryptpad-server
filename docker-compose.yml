@@ -1,0 +1,29 @@
+services:
+  cryptpad:
+    build: .
+    image: cryptpad-server
+    container_name: cryptpad-server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "3003:3003"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - CRYPTPAD_HTTP_ADDRESS=0.0.0.0
+    volumes:
+      - cryptpad_data:/app/cryptpad/data
+      - cryptpad_datastore:/app/cryptpad/datastore
+      - cryptpad_blob:/app/cryptpad/blob
+      - cryptpad_block:/app/cryptpad/block
+      - cryptpad_customize:/app/cryptpad/customize
+
+volumes:
+  cryptpad_data:
+  cryptpad_datastore:
+  cryptpad_blob:
+  cryptpad_block:
+  cryptpad_customize:

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    #editor-frame {
+      height: 800px;
+      width: 90%;
+    }
+  </style>
+  <script defer>
+    const CRYPTPAD_ORIGIN = 'http://localhost:3000';
+
+    const CryptpadCommAPI = {
+      Commands: {
+        Ready: 'editics-ready',
+        Hello: 'editics-hello',
+        Init: 'editics-init',
+        InitResult: 'editics-init-result',
+        Open: 'editics-open',
+        OpenResult: 'editics-open-result',
+        Event: 'editics-event',
+      },
+      Events: {
+        SaveStatus: 'save-status',
+        Save: 'save',
+        Error: 'error',
+        Ready: 'ready',
+      },
+      ErrorCodes: {
+        OpenInvalidConfig: 'open-invalid-config',
+        OpenFailed: 'open-failed',
+        InitFailed: 'init-failed',
+      },
+      Editors: {
+        Pad: 'pad',
+        Sheet: 'sheet',
+        Doc: 'doc',
+        Presentation: 'presentation',
+        Code: 'code',
+        Unsupported: 'unsupported',
+      },
+      OpenModes: {
+        View: 'view',
+        Edit: 'edit',
+      },
+      OpenDocumentOptions: ['documentContent', 'documentName', 'documentExtension', 'cryptpadEditor', 'key', 'userName', 'userId', 'autosaveInterval', 'mode', 'locale'],
+    }
+
+
+    let frame = undefined;
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== CRYPTPAD_ORIGIN) {
+        console.log(`Ignored origin '${event.origin}'`);
+        return;
+      }
+      if (!event.data.command) {
+        return;
+      }
+      switch (event.data.command) {
+        case CryptpadCommAPI.Commands.InitResult: {
+          if (event.data.success) {
+            postMessage({
+              command: CryptpadCommAPI.Commands.Open,
+              documentContent: new Uint8Array([80, 101, 110, 105, 115]),
+              documentName: 'My Doc',
+              documentExtension: 'txt',
+              cryptpadEditor: 'code',
+              key: 'key',
+              userName: 'John Doe',
+              userId: 'user_id',
+              autosaveInterval: 20,
+              mode: 'edit',
+              locale: 'fr',
+            });
+          } else {
+            console.error(`Failed to init Cryptpad: ${event.data.details}`);
+          }
+          break;
+        }
+        case CryptpadCommAPI.Commands.OpenResult: {
+          console.log('Open result', event);
+          break;
+        }
+        default: {
+          console.error(`Unknown command '${event.data.command}'`);
+          break;
+        }
+      }
+    });
+
+    function postMessage(data) {
+      if (!frame) {
+        frame = document.getElementById('editor-frame');
+      }
+      frame.contentWindow.postMessage(data, 'http://localhost:3000');
+    }
+
+    function loadDocument() {
+      console.log('Saying hello');
+      postMessage({ command: CryptpadCommAPI.Commands.Hello });
+      console.log('Initializing...');
+      postMessage({ command: CryptpadCommAPI.Commands.Init });
+    }
+  </script>
+</head>
+<body>
+  <button onclick="loadDocument()">Load document</button><br />
+  <iframe id="editor-frame" src="http://localhost:3000/frame.html" />
+</body>
+</html>
