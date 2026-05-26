@@ -16,9 +16,15 @@ on:
 permissions:
   contents: write
   packages: write
+  
+# We set `concurrency` to prevent having this workflow being run on code that is not up-to-date on a PR (a user make multiple push in a quick manner).
+# But outside of a PR, we want to have only 1 workflow to be run at the same time on a given git ref
+concurrency:
+  group: docker-cryptpad-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  docker-testbed:
+  docker:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # pin v5.0.0
