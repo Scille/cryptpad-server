@@ -23,11 +23,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 case "$OS" in
     "windows")
         echo "🪟 Using Windows build script..."
-        bash "$SCRIPT_DIR/build_windows.sh" "$@"
+        exec "$SCRIPT_DIR/build_windows.sh" "$@"
         ;;
     "linux")
         echo "🐧 Using Unix build script..."
-        bash "$SCRIPT_DIR/build_unix.sh" "$@"
+        exec "$SCRIPT_DIR/build_unix.sh" "$@"
         ;;
     "macos")
         echo "🐧 Using Darwin build script..."
