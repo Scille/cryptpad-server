@@ -7,6 +7,12 @@ on:
     tags:
       - "v[0-9]+.**"
 
+# We set `concurrency` to prevent having this workflow being run on code that is not up-to-date on a PR (a user make multiple push in a quick manner).
+# But outside of a PR, we want to have only 1 workflow to be run at the same time on a given git ref
+concurrency:
+  group: build-cryptpad-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
