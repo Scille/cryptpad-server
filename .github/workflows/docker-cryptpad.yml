@@ -47,12 +47,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get current version
-        id: version
-        shell: bash
-        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-        timeout-minutes: 1
-
       - name: Generate build metadata
         uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6.1.0
         id: metadata
@@ -61,14 +55,16 @@ jobs:
             ghcr.io/scille/cryptpad-server/cryptpad
           labels: |
             org.opencontainers.image.title=Cryptpad container
-            org.opencontainers.image.version=${{ steps.version.outputs.sha }}
           annotations: |
             manifest:org.opencontainers.image.title=Cryptpad container
-            manifest:org.opencontainers.image.version=${{ steps.version.outputs.sha }}
           tags: |
-            type=raw,value=${{ steps.version.outputs.sha }}
+            type=semver,pattern={{version}}
+            type=sha,format=short
+            type=ref,event=tag
+            type=ref,event=pr
+            type=edge
           flavor: |
-            latest=${{ github.event_name == 'workflow_dispatch' }}
+            latest=auto
 
       - name: Build and export to Docker
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
@@ -79,6 +75,7 @@ jobs:
           load: true
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          annotations: ${{ steps.metadata.outputs.annotations }}
           push: false
         timeout-minutes: 20
 
@@ -110,12 +107,13 @@ jobs:
         run: echo "${{ steps.metadata.outputs.tags }}"
 
       - name: Build and publish
-        if: github.event_name == 'workflow_dispatch'
+        if: contains(fromJSON('["workflow_dispatch", "push"]'), github.event_name)
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: .
           file: Dockerfile
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
+          annotations: ${{ steps.metadata.outputs.annotations }}
           push: true
         timeout-minutes: 5
