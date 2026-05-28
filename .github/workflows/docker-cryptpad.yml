@@ -7,6 +7,10 @@ on:
   # other CI runs.
   workflow_dispatch:
   pull_request:
+    paths:
+      - '**' # Add all files
+      - '!.github/**' # Ignore every other github's files
+      - .github/workflows/docker-cryptpad.yml # Re-include current workflow
 
   # Run the workflow when we push a tag
   push:
