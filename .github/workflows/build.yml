@@ -2,14 +2,20 @@ name: Build cryptpad
 
 on:
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      artifact-id: 
+        value: ${{ jobs.build.outputs.artifact-id }}
+      artifact-url:
+        value: ${{ jobs.build.outputs.artifact-url }}
+      artifact-digest:
+        value: ${{ jobs.build.outputs.artifact-digest }}
+
   pull_request:
     paths:
       - '**' # Add all files
       - '!.github/**' # Ignore every other github's files
       - .github/workflows/build.yml # Re-include current workflow
-  push:
-    tags:
-      - "v[0-9]+.**"
 
 # We set `concurrency` to prevent having this workflow being run on code that is not up-to-date on a PR (a user make multiple push in a quick manner).
 # But outside of a PR, we want to have only 1 workflow to be run at the same time on a given git ref
@@ -20,6 +26,10 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+      artifact-url: ${{ steps.upload.outputs.artifact-url }}
+      artifact-digest: ${{ steps.upload.outputs.artifact-digest }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # pin v6.0.2
         timeout-minutes: 2
@@ -33,6 +43,7 @@ jobs:
         timeout-minutes: 5
 
       - name: Upload artifact
+        id: upload
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # pin v7.0.1
         with:
           name: cryptpad-server
