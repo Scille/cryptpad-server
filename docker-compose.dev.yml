@@ -1,6 +1,7 @@
 services:
   cryptpad:
-    image: ghcr.io/scille/cryptpad-server/cryptpad:latest
+    build: .
+    image: cryptpad-server
     container_name: cryptpad-server
     restart: unless-stopped
     ports:
@@ -11,6 +12,8 @@ services:
         required: false
     environment:
       - NODE_ENV=production
+      - PORT=3000
+      - CRYPTPAD_HTTP_ADDRESS=0.0.0.0
     volumes:
       - cryptpad_data:/app/cryptpad/data
       - cryptpad_datastore:/app/cryptpad/datastore
