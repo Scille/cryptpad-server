@@ -186,6 +186,12 @@ All variables are optional. Defaults are suited for local development (`localhos
 | `CRYPTPAD_HTTP_ADDRESS` | `localhost` | Address the Node.js server binds to (`0.0.0.0` to accept external connections) |
 | `CRYPTPAD_CUSTOM_PROTOCOL` | `parsec-desktop:` | Custom protocol for Parsec CSP integration |
 | `CRYPTPAD_MAX_WORKERS` | _(all cores)_ | Maximum number of worker processes |
+| `CRYPTPAD_DATASTORE_PATH` | `./datastore` | Folder where cryptpad will store document |
+| `CRYPTPAD_DATA_PATH` | `./data` | Folder where CryptPad will store its data |
+| `CRYPTPAD_BLOCK_PATH` | `./block` | Folder where will reside users' authenticated blocks |
+| `CRYPTPAD_BLOB_PATH` | `./blob` | Folder where are stored encrypted blob |
+| `CRYPTPAD_LOG_PATH` | `{{ CRYPTPAD_DATA_PATH }}/logs` | Folder where log files are located
+| `WEBSOCKET_PORT` | `3003` | The port the server use to listen to websocket |
 
 > **Production note:** `CRYPTPAD_HTTP_SAFE_ORIGIN` must point to a **different domain or subdomain** than `CRYPTPAD_HTTP_UNSAFE_ORIGIN`. Using the same domain will break the CryptPad sandboxing model.
 

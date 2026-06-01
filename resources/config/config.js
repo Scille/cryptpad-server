@@ -22,7 +22,13 @@
 */
 // <Parsec customization>
 const PORT = Number(process.env.PORT || 3000);
+const WEBSOCKET_PORT = Number(process.env.WEBSOCKET_PORT || 3003);
 
+const CRYPTPAD_DATASTORE_PATH = process.env.CRYPTPAD_DATASTORE_PATH || './datastore';
+const CRYPTPAD_DATA_PATH = process.env.CRYPTPAD_DATA_PATH || './data';
+const CRYPTPAD_BLOCK_PATH = process.env.CRYPTPAD_BLOCK_PATH || './block';
+const CRYPTPAD_BLOB_PATH = process.env.CRYPTPAD_BLOB_PATH || './blob';
+const CRYPTPAD_LOG_PATH = process.env.CRYPTPAD_LOG_PATH || CRYPTPAD_DATA_PATH + '/logs';
 const HTTP_UNSAFE_ORIGIN = process.env.CRYPTPAD_HTTP_UNSAFE_ORIGIN || `http://localhost:${PORT}`;
 const HTTP_SAFE_ORIGIN = process.env.CRYPTPAD_HTTP_SAFE_ORIGIN || `http://safe.localhost:${PORT}`;
 const HTTP_ADDRESS = process.env.CRYPTPAD_HTTP_ADDRESS || "localhost";
@@ -134,7 +140,9 @@ module.exports = {
  *  to this port.
  *
  */
-    // websocketPort: 3003,
+	// <Parsec customization>
+    websocketPort: WEBSOCKET_PORT,
+	// </Parsec customization
 
 /*  CryptPad will launch a child process for every core available
  *  in order to perform CPU-intensive tasks in parallel.
@@ -275,7 +283,9 @@ module.exports = {
      *  Specify a directory where files should be stored.
      *  It will be created automatically if it does not already exist.
      */
-    filePath: './datastore/',
+	// <Parsec customization>
+    filePath: CRYPTPAD_DATASTORE_PATH,
+	// </Parsec customization>
 
     /*  CryptPad offers the ability to archive data for a configurable period
      *  before deleting it, allowing a means of recovering data in the event
@@ -284,41 +294,55 @@ module.exports = {
      *  To set the location of this archive directory to a custom value, change
      *  the path below:
      */
-    archivePath: './data/archive',
+	// <Parsec customization>
+    archivePath: `${CRYPTPAD_DATA_PATH}/archive`,
+    // </Parsec customization>
 
     /*  CryptPad allows logged in users to request that the server 
      *  store particular documents indefinitely. This is called 'pinning'.
      *  Pin requests are stored in a pin-store. The location of this store is
      *  defined here.
      */
-    pinPath: './data/pins',
+	// <Parsec customization>
+    pinPath: `${CRYPTPAD_DATA_PATH}/pins`,
+    // </Parsec customization>
 
     /*  if you would like the list of scheduled tasks to be stored in
         a custom location, change the path below:
     */
-    taskPath: './data/tasks',
+	// <Parsec customization>
+    taskPath: `${CRYPTPAD_DATA_PATH}/tasks`,
+    // </Parsec customization>
 
     /*  if you would like users' authenticated blocks to be stored in
         a custom location, change the path below:
     */
-    blockPath: './block',
+	// <Parsec customization>
+    blockPath: CRYPTPAD_BLOCK_PATH,
+    // </Parsec customization>
 
     /*  CryptPad allows logged in users to upload encrypted files. Files/blobs
      *  are stored in a 'blob-store'. Set its location here.
      */
-    blobPath: './blob',
+	// <Parsec customization>
+    blobPath: CRYPTPAD_BLOB_PATH,
+    // </Parsec customization>
 
     /*  CryptPad stores incomplete blobs in a 'staging' area until they are
      *  fully uploaded. Set its location here.
      */
-    blobStagingPath: './data/blobstage',
+	// <Parsec customization>
+    blobStagingPath: `${CRYPTPAD_DATA_PATH}/blobstage`,
 
-    decreePath: './data/decrees',
+    decreePath: `${CRYPTPAD_DATA_PATH}/decrees`,
+    // </Parsec customization>
 
     /* CryptPad supports logging events directly to the disk in a 'logs' directory
      * Set its location here, or set it to false (or nothing) if you'd rather not log
      */
-    logPath: './data/logs',
+	// <Parsec customization>
+    logPath: CRYPTPAD_LOG_PATH,
+    // </Parsec customization>
 
     /* =====================
      *       Debugging
