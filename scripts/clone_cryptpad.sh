@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Commit hash to checkout (single source of truth)
-CRYPTPAD_COMMIT="e7bdaa0b08fa6bd798dc0877d5dd907911ef058d"
+CRYPTPAD_COMMIT="345db27cf8cb0bfd9fda61f0dc8c19e7730cc383"
 
 # Clone cryptpad repository
 rm -rf cryptpad
